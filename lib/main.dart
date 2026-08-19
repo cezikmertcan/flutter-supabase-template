@@ -33,11 +33,16 @@ class SupabaseFlutterTemplateApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Supabase Flutter Template',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      home: HomeScreen(auth: auth, localState: localState, sync: sync),
+    return AnimatedBuilder(
+      animation: localState,
+      builder: (context, _) => MaterialApp(
+        title: 'Supabase Flutter Template',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light(),
+        darkTheme: AppTheme.dark(),
+        themeMode: localState.themeMode,
+        home: HomeScreen(auth: auth, localState: localState, sync: sync),
+      ),
     );
   }
 }

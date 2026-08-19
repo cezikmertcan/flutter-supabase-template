@@ -30,6 +30,8 @@ Owns the Supabase client, the current session, OAuth entry points, profile creat
 
 Is the immediate source of truth for the example state. Replace its sample fields with a domain model or a dedicated persistence layer when building a product.
 
+The selected theme mode is device-local presentation state and is intentionally not included in the remote payload.
+
 ### `RemoteStateSyncService`
 
 Listens to auth and local-state changes, fetches the authenticated `user_state` row, merges the payload, and writes it back with a short debounce. The sample behavior is intentionally simple; conflict resolution should be designed for each product’s data model.

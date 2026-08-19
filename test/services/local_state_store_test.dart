@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:supabase_flutter_template/services/local_state_store.dart';
@@ -30,5 +31,14 @@ void main() {
 
     expect(store.actionCount, 7);
     expect(store.lastActionAt, '2026-08-19T12:00:00.000Z');
+  });
+
+  test('persists the selected theme mode locally', () async {
+    final store = await LocalStateStore.load();
+
+    store.setThemeMode(ThemeMode.dark);
+    final reloaded = await LocalStateStore.load();
+
+    expect(reloaded.themeMode, ThemeMode.dark);
   });
 }
