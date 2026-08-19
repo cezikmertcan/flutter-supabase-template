@@ -14,6 +14,7 @@ The sample UI is intentionally generic. Replace the example dashboard with your 
 - Supabase Auth provider hooks for Google and GitHub.
 - `--dart-define-from-file` configuration with no project URL or key committed.
 - Local-first state using `shared_preferences`.
+- Persisted system/light/dark theme selection.
 - Debounced authenticated sync to a protected `user_state` row.
 - `profiles` table and new-user trigger with RLS policies.
 - Optional, allowlisted analytics schema with no free-text payload requirement.

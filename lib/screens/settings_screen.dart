@@ -1,73 +1,110 @@
 import 'package:flutter/material.dart';
 
 import '../services/auth_service.dart';
+import '../services/local_state_store.dart';
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({required this.auth, super.key});
+  const SettingsScreen({
+    required this.auth,
+    required this.localState,
+    super.key,
+  });
 
   final AuthService auth;
+  final LocalStateStore localState;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-        children: <Widget>[
-          Card(
-            child: Column(
-              children: <Widget>[
-                ListTile(
-                  leading: const Icon(Icons.cloud_outlined),
-                  title: const Text('Supabase connection'),
-                  subtitle: Text(
-                    auth.isConfigured ? 'Configured' : 'Not configured',
-                  ),
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.person_outline),
-                  title: const Text('Account'),
-                  subtitle: Text(
-                    auth.isSignedIn
-                        ? auth.user?.email ?? 'Authenticated'
-                        : 'Guest session',
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (auth.isSignedIn) ...<Widget>[
-            const SizedBox(height: 16),
+      body: AnimatedBuilder(
+        animation: localState,
+        builder: (context, _) => ListView(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+          children: <Widget>[
             Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      'Danger zone',
-                      style: Theme.of(context).textTheme.titleMedium,
+              child: Column(
+                children: <Widget>[
+                  ListTile(
+                    leading: const Icon(Icons.cloud_outlined),
+                    title: const Text('Supabase connection'),
+                    subtitle: Text(
+                      auth.isConfigured ? 'Configured' : 'Not configured',
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Account deletion calls the Supabase Edge Function and removes the authenticated user.',
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.person_outline),
+                    title: const Text('Account'),
+                    subtitle: Text(
+                      auth.isSignedIn
+                          ? auth.user?.email ?? 'Authenticated'
+                          : 'Guest session',
                     ),
-                    const SizedBox(height: 14),
-                    OutlinedButton.icon(
-                      onPressed: () => _confirmDelete(context),
-                      icon: const Icon(Icons.delete_outline),
-                      label: const Text('Delete account'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Theme.of(context).colorScheme.error,
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.brightness_6_outlined),
+                    title: const Text('Theme'),
+                    subtitle: Text(_themeLabel(localState.themeMode)),
+                    trailing: DropdownButtonHideUnderline(
+                      child: DropdownButton<ThemeMode>(
+                        value: localState.themeMode,
+                        onChanged: (value) {
+                          if (value != null) localState.setThemeMode(value);
+                        },
+                        items: const <DropdownMenuItem<ThemeMode>>[
+                          DropdownMenuItem(
+                            value: ThemeMode.system,
+                            child: Text('System'),
+                          ),
+                          DropdownMenuItem(
+                            value: ThemeMode.light,
+                            child: Text('Light'),
+                          ),
+                          DropdownMenuItem(
+                            value: ThemeMode.dark,
+                            child: Text('Dark'),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
+            if (auth.isSignedIn) ...<Widget>[
+              const SizedBox(height: 16),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        'Danger zone',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Account deletion calls the Supabase Edge Function and removes the authenticated user.',
+                      ),
+                      const SizedBox(height: 14),
+                      OutlinedButton.icon(
+                        onPressed: () => _confirmDelete(context),
+                        icon: const Icon(Icons.delete_outline),
+                        label: const Text('Delete account'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -105,5 +142,13 @@ class SettingsScreen extends StatelessWidget {
         context,
       ).showSnackBar(SnackBar(content: Text(result.errorMessage!)));
     }
+  }
+
+  static String _themeLabel(ThemeMode themeMode) {
+    return switch (themeMode) {
+      ThemeMode.light => 'Light theme',
+      ThemeMode.dark => 'Dark theme',
+      ThemeMode.system => 'Follow device setting',
+    };
   }
 }

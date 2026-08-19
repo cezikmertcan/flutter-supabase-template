@@ -31,7 +31,8 @@ class HomeScreen extends StatelessWidget {
             tooltip: 'Settings',
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute<void>(
-                builder: (_) => SettingsScreen(auth: auth),
+                builder: (_) =>
+                    SettingsScreen(auth: auth, localState: localState),
               ),
             ),
             icon: const Icon(Icons.settings_outlined),
