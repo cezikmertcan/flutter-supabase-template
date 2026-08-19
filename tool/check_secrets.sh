@@ -3,9 +3,9 @@
 set -euo pipefail
 
 if command -v rg >/dev/null 2>&1; then
-  search=(rg -n --hidden -g '!.git/**' -g '!config/dart-defines.example.json' -g '!tool/check_secrets.sh')
+  search=(rg -n --hidden -g '!.git/**' -g '!config/dart-defines.example.json' -g '!**/check_secrets.sh')
 else
-  search=(grep -RIn --exclude-dir=.git --exclude=config/dart-defines.example.json --exclude=tool/check_secrets.sh)
+  search=(grep -RIn --exclude-dir=.git --exclude=config/dart-defines.example.json --exclude=check_secrets.sh)
 fi
 
 patterns=(
