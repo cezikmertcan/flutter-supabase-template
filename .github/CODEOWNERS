@@ -1,0 +1,5 @@
+# Default ownership keeps changes reviewable as the template grows.
+* @cezikmertcan
+
+# Database policies and server-side functions deserve explicit owner review.
+/supabase/ @cezikmertcan
