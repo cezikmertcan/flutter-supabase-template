@@ -6,11 +6,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/app_config.dart';
 
 class AuthOperationResult {
-  const AuthOperationResult({this.errorMessage});
+  const AuthOperationResult({this.errorMessage, this.infoMessage});
 
-  const AuthOperationResult.success() : errorMessage = null;
+  const AuthOperationResult.success({this.infoMessage}) : errorMessage = null;
 
   final String? errorMessage;
+  final String? infoMessage;
 
   bool get isSuccess => errorMessage == null;
 }
@@ -88,6 +89,57 @@ class AuthService extends ChangeNotifier {
         authScreenLaunchMode: LaunchMode.externalApplication,
       );
       return const AuthOperationResult.success();
+    } catch (error) {
+      return AuthOperationResult(errorMessage: _cleanError(error));
+    }
+  }
+
+  Future<AuthOperationResult> signInWithEmail({
+    required String email,
+    required String password,
+  }) async {
+    if (!isConfigured) {
+      return const AuthOperationResult(
+        errorMessage: 'Add Supabase dart defines before signing in.',
+      );
+    }
+
+    try {
+      final response = await _client!.auth.signInWithPassword(
+        email: email.trim(),
+        password: password,
+      );
+      _session = response.session;
+      notifyListeners();
+      return const AuthOperationResult.success();
+    } catch (error) {
+      return AuthOperationResult(errorMessage: _cleanError(error));
+    }
+  }
+
+  Future<AuthOperationResult> signUpWithEmail({
+    required String email,
+    required String password,
+  }) async {
+    if (!isConfigured) {
+      return const AuthOperationResult(
+        errorMessage: 'Add Supabase dart defines before creating an account.',
+      );
+    }
+
+    try {
+      final response = await _client!.auth.signUp(
+        email: email.trim(),
+        password: password,
+        emailRedirectTo: AppConfig.redirectUri,
+      );
+      _session = response.session;
+      notifyListeners();
+      return AuthOperationResult.success(
+        infoMessage: response.session == null
+            ? 'Check your email to confirm the new account.'
+            : null,
+      );
     } catch (error) {
       return AuthOperationResult(errorMessage: _cleanError(error));
     }
