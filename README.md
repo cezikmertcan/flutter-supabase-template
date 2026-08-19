@@ -11,7 +11,7 @@ The sample UI is intentionally generic. Replace the example dashboard with your 
 ## Included
 
 - Flutter iOS and Android project generated from a clean platform scaffold.
-- Supabase Auth provider hooks for Google and GitHub.
+- Supabase Auth provider hooks for Google, GitHub, and email/password.
 - `--dart-define-from-file` configuration with no project URL or key committed.
 - Local-first state using `shared_preferences`.
 - Persisted system/light/dark theme selection.
@@ -52,7 +52,7 @@ The default build is still useful without configuration: it shows the local-firs
 
    Never put the service role key in Flutter code, a Dart define file, an issue, or a commit.
 
-5. Enable Google and/or GitHub under Supabase Auth → Providers. Register the platform callback scheme in the provider configuration as described in [Supabase setup](docs/supabase-setup.md).
+5. Enable the auth providers you need under Supabase Auth → Providers. The sample exposes Google, GitHub, and email/password flows; register the platform callback scheme for OAuth providers as described in [Supabase setup](docs/supabase-setup.md).
 
 6. Keep the redirect URI aligned across `config/dart-defines.json`, `ios/Runner/Info.plist`, `android/app/src/main/AndroidManifest.xml`, and Supabase Auth URL configuration:
 

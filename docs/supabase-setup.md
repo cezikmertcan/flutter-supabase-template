@@ -20,6 +20,20 @@ The migrations create:
 
 Review the policies and adapt them before adding product-specific tables.
 
+## Authentication providers
+
+The sample UI supports Google OAuth, GitHub OAuth, and email/password auth.
+
+- For email/password, enable the Email provider and choose whether new users
+  must confirm their email address.
+- For Google or GitHub, configure the provider credentials and use the
+  Supabase callback URL shown below in the provider dashboard.
+- Keep the application redirect URI in the Supabase allowlist when OAuth is
+  enabled.
+
+If email confirmation is enabled, sign-up returns a confirmation message and
+the user can sign in after completing the email link.
+
 ## Client configuration
 
 Copy the example file and keep the real file local:
