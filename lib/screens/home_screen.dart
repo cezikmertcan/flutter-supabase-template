@@ -7,6 +7,7 @@ import '../services/auth_service.dart';
 import '../services/local_state_store.dart';
 import '../services/remote_state_sync_service.dart';
 import 'settings_screen.dart';
+import '../widgets/email_auth_sheet.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({
@@ -167,6 +168,14 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
+              if (auth.isConfigured) ...<Widget>[
+                const SizedBox(height: 8),
+                TextButton.icon(
+                  onPressed: () => _showEmailAuthSheet(context),
+                  icon: const Icon(Icons.alternate_email),
+                  label: const Text('Use email instead'),
+                ),
+              ],
               if (!auth.isConfigured) ...<Widget>[
                 const SizedBox(height: 10),
                 Text(
@@ -261,6 +270,19 @@ class HomeScreen extends StatelessWidget {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(result.errorMessage!)));
+  }
+
+  Future<void> _showEmailAuthSheet(BuildContext context) async {
+    final message = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => EmailAuthSheet(auth: auth),
+    );
+    if (!context.mounted || message == null) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   static String _formatDate(String value) {
