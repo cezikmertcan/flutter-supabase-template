@@ -1,112 +1,89 @@
-# Supabase Flutter Template
+# FlashCard AI
 
-![Flutter](https://img.shields.io/badge/Flutter-iOS%20%2B%20Android-02569B?logo=flutter)
-![Supabase](https://img.shields.io/badge/Supabase-Auth%20%2B%20Postgres-3ECF8E?logo=supabase)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+FlashCard AI is a guided study workspace for any topic. The user starts with a free-form prompt, then continues through compact AI-generated choices: flashcards, quizzes, topic maps, study plans, source-based study, and export.
 
-A clean, reusable starting point for Flutter apps backed by Supabase. The template includes a small Material 3 dashboard, OAuth entry points, a local-first state store, authenticated remote sync, row-level security migrations, and a secure account-deletion Edge Function.
+The app is intentionally topic-agnostic. “Backend .NET”, “KPSS”, a language, a certification, or a user-provided document are all inputs to the same study engine.
 
-The sample UI is intentionally generic. Replace the example dashboard with your product experience while keeping the infrastructure pieces that fit your use case.
+## Product flow
 
-## Included
+```text
+free-form topic or goal
+  → guided assistant message
+  → action buttons / custom input
+  → flashcards, quiz, map, or plan
+  → saved Library artifact
+  → repeat, edit, review, and track progress
+```
 
-- Flutter iOS and Android project generated from a clean platform scaffold.
-- Supabase Auth provider hooks for Google, GitHub, and email/password.
-- `--dart-define-from-file` configuration with no project URL or key committed.
-- Local-first state using `shared_preferences`.
-- Persisted system/light/dark theme selection.
-- Debounced authenticated sync to a protected `user_state` row.
-- `profiles` table and new-user trigger with RLS policies.
-- Optional, allowlisted analytics schema with no free-text payload requirement.
-- Account deletion through a server-side Edge Function that keeps the service role key off-device.
-- CI workflow for formatting, static analysis, tests, and secret-pattern checks.
+The assistant response is designed as structured data: a message, a list of next actions, and an optional generated artifact. This keeps the interface conversational while making every button an explicit product action.
 
-## Quick start
+## Included foundation
+
+- Flutter iOS and Android application shell.
+- Dark-first matrix visual system with green accents and monospace metadata labels.
+- Local-first conversation and Library persistence using `shared_preferences`.
+- Guided flashcard, quiz, topic-map, and study-plan flows that work without network configuration.
+- Supabase Auth hooks with Google OAuth, profile creation, account deletion, and debounced state sync.
+- RLS-protected conversations, messages, and Library artifact migrations.
+- JWT-protected `study-assistant` Edge Function boundary for server-side AI calls.
+- Allowlisted, low-risk analytics foundation and secret-pattern CI checks.
+
+## Run locally
 
 ```bash
 flutter pub get
 cp config/dart-defines.example.json config/dart-defines.json
-# Edit config/dart-defines.json with your own Supabase values.
+# Add the FlashCard AI Supabase URL and publishable key.
 flutter run --dart-define-from-file=config/dart-defines.json
 ```
 
-The default build is still useful without configuration: it shows the local-first sample state and keeps authentication controls disabled.
+Without Supabase configuration, local mode remains usable. Sign-in, cloud sync, and the server-side assistant require a configured project.
 
-## Supabase setup
+## Supabase
 
-1. Create a Supabase project.
-2. Copy `config/dart-defines.example.json` to `config/dart-defines.json` and add the project URL plus publishable key.
-3. Apply the database migrations:
-
-   ```bash
-   supabase link --project-ref <your-project-ref>
-   supabase db push
-   ```
-
-4. Deploy the account-deletion function and set its server-only secret:
-
-   ```bash
-   supabase functions deploy delete-account
-   supabase secrets set SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
-   ```
-
-   Never put the service role key in Flutter code, a Dart define file, an issue, or a commit.
-
-5. Enable the auth providers you need under Supabase Auth → Providers. The sample exposes Google, GitHub, and email/password flows; register the platform callback scheme for OAuth providers as described in [Supabase setup](docs/supabase-setup.md).
-
-6. Keep the redirect URI aligned across `config/dart-defines.json`, `ios/Runner/Info.plist`, `android/app/src/main/AndroidManifest.xml`, and Supabase Auth URL configuration:
-
-   ```text
-   com.example.supabasefluttertemplate://login-callback
-   ```
-
-## Development
+The project expects a dedicated Supabase project named **FlashCard AI**. Apply the migrations with:
 
 ```bash
-dart format lib test
-flutter analyze
-flutter test
-bash tool/check_secrets.sh
+supabase link --project-ref <flashcard-ai-project-ref>
+supabase db push
+supabase functions deploy delete-account
+supabase functions deploy study-assistant
+supabase secrets set SUPABASE_SERVICE_ROLE_KEY=<server-only-key>
+supabase secrets set GEMINI_API_KEY=<server-only-key>
+supabase secrets set GEMINI_MODEL=gemini-3.5-flash-lite
 ```
 
-The automated test suite runs on the host Dart VM. It does not require an iPhone or Android simulator.
+Only a publishable/anon key belongs in the Flutter app. The service-role key and Gemini provider key stay in Supabase secrets.
+
+The callback URI is:
+
+```text
+com.futurefry.flashcardai://login-callback
+```
+
+Keep it aligned across `config/dart-defines.json`, iOS, Android, and Supabase Auth URL configuration.
 
 ## Project structure
 
 ```text
 lib/
-  core/       Runtime configuration and theme
-  screens/    Example dashboard and account settings
-  services/   Auth, local state, and remote sync
+  core/       Theme and runtime configuration
+  models/     Topic-agnostic study entities
+  screens/    Studio, Library, and settings UI
+  services/   Auth, local store, sync, and study flow
 supabase/
-  migrations/ RLS-protected profile, state, and analytics tables
-  functions/  Server-side account deletion
-test/         Host-side widget and unit tests
-docs/         Setup, architecture, and release guidance
+  migrations/ RLS-protected profile and study data
+  functions/  Account deletion and structured AI boundary
+test/         Host-side widget and service tests
 ```
 
-See [architecture.md](docs/architecture.md) for the data flow and [release-checklist.md](docs/release-checklist.md) before publishing an app built from this template.
+## Verification
 
-## Security model
+```bash
+dart format --set-exit-if-changed lib test
+flutter analyze
+flutter test
+bash tool/check_secrets.sh
+```
 
-- The client accepts only a Supabase URL and publishable/anon key through build-time defines.
-- All user tables have RLS enabled and policies are scoped to `auth.uid()`.
-- Service-role access is isolated inside the `delete-account` Edge Function.
-- Analytics is allowlisted and should contain only low-risk product events.
-- Local config, signing material, generated build files, and Dart define files are ignored by Git.
-- Run `bash tool/check_secrets.sh` before every push.
-
-Read [SECURITY.md](SECURITY.md) before adapting the template to production data.
-
-## Customization checklist
-
-- Change the app name and package/bundle identifiers in the Flutter and native projects.
-- Replace the example dashboard and sample state payload.
-- Add only the Supabase tables and policies your product needs.
-- Review OAuth providers, redirect URLs, email settings, deep links, and deletion behavior.
-- Replace the placeholder launcher icons and signing configuration.
-- Add product-specific tests and a privacy policy before public release.
-
-## License
-
-Released under the [MIT License](LICENSE).
+The app is local-first, but generated content should still be reviewed before being used for official exam preparation. Source-grounded content and official answer keys should take priority over unverified model output.

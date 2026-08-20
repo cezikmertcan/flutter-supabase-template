@@ -8,3 +8,6 @@ major_version = 15
 
 [functions.delete-account]
 verify_jwt = true
+
+[functions.study-assistant]
+verify_jwt = true

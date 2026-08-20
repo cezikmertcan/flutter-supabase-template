@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:supabase_flutter_template/core/app_config.dart';
+import 'package:flashcard_ai/core/app_config.dart';
 
 void main() {
   test('does not claim to be configured without dart defines', () {

@@ -7,7 +7,7 @@ class AppConfig {
   );
   static const redirectUri = String.fromEnvironment(
     'SUPABASE_REDIRECT_URI',
-    defaultValue: 'com.example.supabasefluttertemplate://login-callback',
+    defaultValue: 'com.futurefry.flashcardai://login-callback',
   );
 
   static bool get isConfigured {

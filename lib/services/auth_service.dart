@@ -94,6 +94,10 @@ class AuthService extends ChangeNotifier {
     }
   }
 
+  Future<AuthOperationResult> signInWithGoogle() {
+    return signInWithProvider(OAuthProvider.google);
+  }
+
   Future<AuthOperationResult> signInWithEmail({
     required String email,
     required String password,
