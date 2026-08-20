@@ -1,5 +1,5 @@
-name: flashcard_ai
-description: "FlashCard AI - a guided AI study workspace for any topic."
+name: supabase_flutter_template
+description: "A production-minded Flutter starter for Supabase-backed iOS and Android apps."
 publish_to: "none"
 version: 0.1.0+1
 

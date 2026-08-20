@@ -1,51 +1,49 @@
 # Architecture
 
-FlashCard AI keeps the learning engine generic and lets the prompt define the domain.
+The template keeps the application layer small and makes infrastructure easy to replace.
 
 ## Runtime flow
 
 ```text
 main()
-  ├─ LocalStateStore.load()       presentation preferences
-  ├─ FlashCardAiStore.load()      local conversation + Library
-  ├─ AuthService.initialize()     optional Supabase session
-  ├─ RemoteStateSyncService       authenticated state sync
-  └─ FlashCardAiApp
-       ├─ Studio                   guided conversation and actions
-       ├─ Library                  persisted artifacts
-       └─ Settings                 Google auth, theme, sync, deletion
+  ├─ LocalStateStore.load()
+  ├─ AuthService.initialize()
+  ├─ RemoteStateSyncService.start()
+  └─ SupabaseFlutterTemplateApp
+       └─ HomeScreen
+            ├─ authentication actions
+            ├─ local-first sample state
+            └─ remote sync status
 ```
 
-## Guided assistant contract
+## Boundaries
 
-The assistant is not treated as an unstructured chat-only endpoint. Each turn can contain:
+### `AppConfig`
 
-- `message`: the natural-language response.
-- `actions`: stable IDs, labels, and optional descriptions for the next buttons.
-- `artifact`: an optional flashcard set, quiz, topic map, or study plan.
+Reads build-time values only. It deliberately has no project URL, key, or account-specific fallback. A missing configuration keeps the demo usable but disables network actions.
 
-The Flutter client can render the same interaction whether it is using the local fallback or the Supabase `study-assistant` Edge Function. When configured, that function sends the authenticated turn to Gemini and returns the same contract.
+### `AuthService`
 
-## Data boundaries
+Owns the Supabase client, the current session, OAuth entry points, profile creation, sign-out, and account deletion. Widgets do not handle service-role operations or raw auth state streams.
 
-`FlashCardAiStore` is the local source of truth for the current MVP. It persists versioned JSON so the product remains usable offline. `RemoteStateSyncService` syncs the same versioned payload to the authenticated `user_state` row.
+### `LocalStateStore`
 
-The Supabase migrations also create normalized, RLS-protected tables for the next persistence step:
+Is the immediate source of truth for the example state. Replace its sample fields with a domain model or a dedicated persistence layer when building a product.
 
-- `study_conversations`
-- `study_messages`
-- `study_artifacts`
+The selected theme mode is device-local presentation state and is intentionally not included in the remote payload.
 
-As the Library grows, those tables can replace the single payload sync without changing the UI contract.
+### `RemoteStateSyncService`
 
-## AI boundary
+Listens to auth and local-state changes, fetches the authenticated `user_state` row, merges the payload, and writes it back with a short debounce. The sample behavior is intentionally simple; conflict resolution should be designed for each product’s data model.
 
-The mobile app never receives an AI provider secret. `study-assistant` verifies the Supabase bearer session, sends the recent conversation and optional source text to Gemini, and returns the strict assistant contract. The function must remain source-aware and should not invent official exam answers.
+### Supabase database
 
-## Extension rules
+The migrations create private-by-default tables. Every client-facing policy is scoped to the authenticated user. The account-deletion function uses a service-role key only on the server and deletes account-owned analytics rows before removing the auth user.
 
-- Do not add hard-coded product areas for KPSS, .NET, or another domain; store the user’s topic and source as data.
-- Keep generated artifacts editable and versionable.
-- Save selected action IDs as part of conversation history.
-- Add RLS policies before adding a user-facing table.
-- Keep PDF parsing and export behind services so the mobile UI is not coupled to a provider.
+## Extension guidance
+
+- Keep feature code under `lib/features/<feature>/` when the product grows beyond the sample screens.
+- Keep Supabase reads and writes in repositories or services rather than in widgets.
+- Treat local payloads as versioned data and write migrations when their shape changes.
+- Add RLS policies before shipping a new table; do not rely on the client to filter rows.
+- Keep analytics event names allowlisted and avoid free text, health data, and identifiers that are not needed for the product decision.

@@ -59,7 +59,7 @@ flutter run --dart-define-from-file=config/dart-defines.json
 The sample callback is:
 
 ```text
-com.futurefry.flashcardai://login-callback
+com.example.supabasefluttertemplate://login-callback
 ```
 
 If you change it, update all of these locations:
@@ -87,16 +87,3 @@ supabase secrets set SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
 ```
 
 The service-role key must remain a Supabase server secret. Do not copy it into any `.env` committed to Git, Dart define file, CI log, or mobile build.
-
-## Gemini study assistant
-
-The Flutter client calls the authenticated `study-assistant` Edge Function. The
-function validates the Supabase session, sends the conversation to Gemini, and
-returns the structured message/actions/artifact contract. The Gemini key never
-belongs in Flutter or in a committed environment file.
-
-```bash
-supabase functions deploy study-assistant
-supabase secrets set GEMINI_API_KEY=<server-only-key>
-supabase secrets set GEMINI_MODEL=gemini-3.5-flash-lite
-```

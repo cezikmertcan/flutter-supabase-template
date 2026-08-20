@@ -1,5 +1,5 @@
 {
   "SUPABASE_URL": "https://your-project-ref.supabase.co",
   "SUPABASE_PUBLISHABLE_KEY": "replace_with_publishable_key",
-  "SUPABASE_REDIRECT_URI": "com.futurefry.flashcardai://login-callback"
+  "SUPABASE_REDIRECT_URI": "com.example.supabasefluttertemplate://login-callback"
 }

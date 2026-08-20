@@ -1,4 +1,4 @@
-package com.futurefry.flashcardai
+package com.example.supabase_flutter_template
 
 import io.flutter.embedding.android.FlutterActivity
 
